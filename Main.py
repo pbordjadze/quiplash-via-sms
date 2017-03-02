@@ -9,14 +9,14 @@ import time
 def text(client, message):
     client.messages.create(
         to=CLIENT_NUM,
-        from=SERVER_NUM,
+        from=SERVER_NUM, #These are constants I define down there somewhere
         body=message
     )
 
 
 def click_left(b):
 	buttons = b.find_by_tag('button')
-	buttons[7].click()
+	buttons[7].click() #Idk why but there's invisible buttons. Index 7 is where the real ones start.
 
 def click_right(b):
 	buttons = b.find_by_tag('button')
@@ -26,8 +26,8 @@ def click_final(b, message):
     buttons = b.find_by_tag('button')
     looper = 0
     for char in message:
-        if looper < 3:
-            buttons[int(char) + 6].click()
+        if looper < 3: #There should only be 3 characters, but just in case.
+            buttons[int(char) + 6].click() 
         else:
             pass
         looper += 1
@@ -46,6 +46,7 @@ def answer_question(message, browser):
     browser.find_by_id('quiplash-submit-answer').click()
 
 #put try/except blocks in here.
+#These try/excepts are horrible practice and should be fixed
 def interpret(message, browser, client):
     action = message[0]
     message = message[1:]
@@ -74,13 +75,13 @@ def interpret(message, browser, client):
 # put your own credentials here
 ACCOUNT_SID = ""
 AUTH_TOKEN = ""
-CLIENT_NUM = '+1234567890'
-SERVER_NUM = '+0987654321'
+CLIENT_NUM = '+11234567890'
+SERVER_NUM = '+10987654321'
 
 my_client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
-browser = Browser()
-browser_lock = threading.Lock()
+browser = Browser() #Uses firefox by default.
+browser_lock = threading.Lock() #These are so the browser and my_client variables aren't accessed by both threads at the same time
 
 client_lock = threading.Lock()
 
@@ -92,7 +93,7 @@ class CheckerThread(threading.Thread):
     def run(self):
         global browser
         global my_client
-        previous_questions = ['']
+        previous_questions = [''] #Basically, this runs as a loop, and I want it to text whenever it finds a question it HASN'T seen. There's a more elegant solution I'm sure
         while 1:
             browser_lock.acquire()
             try:
@@ -106,7 +107,7 @@ class CheckerThread(threading.Thread):
                 text(my_client, question)
                 client_lock.release()
             previous_questions.append(question)
-            time.sleep(2)
+            time.sleep(2) # The 2 is arbitrary but some kinda sleep HAS to be here or it kills the processor
 
 
 
@@ -142,5 +143,5 @@ if __name__ == '__main__':
     thread_2 = CheckerThread('checker')
     thread_1.start()
     thread_2.start()
-    thread_1.join()
+    thread_1.join() #Idk if these need to be here but I saw a tutorial where they did. 
     thread_2.join()
